@@ -200,6 +200,7 @@ function SceneManager() {
     /*
      * Animasi
      */
+    // var angleYCameraDirection = Math.atan2((camera.position.x - kapal.position.x), (camera.position.z - kapal.position.z));
     let speed = 0.5;
     let rotation_speed = 0.02;
     this.update = function () {
@@ -208,21 +209,21 @@ function SceneManager() {
 
         if (key_press.ArrowUp)
         {
-            // kapal.position.z += speed;
-            kapal.position.x += speed;
+            kapal.translateX(speed);
         }
         if(key_press.ArrowDown)
         {
-            kapal.position.x -= speed;
+            kapal.translateX(-speed);
         }
         if(key_press.ArrowRight)
         {
-            // kapal.position.z += speed;
-            kapal.rotation.y -= rotation_speed;
+            if (key_press.ArrowUp || key_press.ArrowDown)
+                kapal.rotation.y -= rotation_speed;
         }
         if(key_press.ArrowLeft)
         {
-            kapal.rotation.y += rotation_speed;
+            if (key_press.ArrowUp || key_press.ArrowDown)
+                kapal.rotation.y += rotation_speed;
         }
         
         const time = performance.now() * 0.001;
