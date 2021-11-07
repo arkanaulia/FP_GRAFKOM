@@ -5,6 +5,7 @@ import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitCo
 import { GLTFLoader } from '../JS/GLTFLoader.js';
 import { Water } from 'https://threejs.org/examples/jsm/objects/Water.js';
 import { Sky } from 'https://threejs.org/examples/jsm/objects/Sky.js';
+import { Clock } from '../JS/three.module.js';
 
 // main();
 
@@ -17,6 +18,11 @@ const key_press = {
     ArrowRight: false,
     ArrowDown: false,
 }
+
+/*
+ * Third Person Camera
+ */
+
 
 /*
  * SceneGraph
@@ -54,6 +60,9 @@ function SceneManager() {
      */
     const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 20000);
     camera.position.set(30, 30, 100);
+    // const thirdPersonCamera = new ThirdPersonCamera({
+    //     camera: camera,
+    // });
 
     /*
      * Object
@@ -294,30 +303,37 @@ function SceneManager() {
     /*
      * Animasi
      */
-    // var angleYCameraDirection = Math.atan2((camera.position.x - kapal.position.x), (camera.position.z - kapal.position.z));
     let speed = 0.5;
     let rotation_speed = 0.02;
-    this.update = function () {
+    this.update = function () {  
+        let clock = new THREE.Clock();
+
         // Animates water
         water.material.uniforms['time'].value += 1.0 / 60.0;
 
+        // Camera Update
+
         if (key_press.ArrowUp)
         {
-            kapal.translateX(speed);
+            kapal.translateX(speed );
         }
         if(key_press.ArrowDown)
         {
-            kapal.translateX(-speed);
+            kapal.translateX(-speed );
         }
         if(key_press.ArrowRight)
         {
-            if (key_press.ArrowUp || key_press.ArrowDown)
+            if (key_press.ArrowUp)
                 kapal.rotation.y -= rotation_speed;
+            else if (key_press.ArrowDown)
+                kapal.rotation.y += rotation_speed;
         }
         if(key_press.ArrowLeft)
         {
-            if (key_press.ArrowUp || key_press.ArrowDown)
+            if (key_press.ArrowUp)
                 kapal.rotation.y += rotation_speed;
+            else if (key_press.ArrowDown)
+                kapal.rotation.y -= rotation_speed;
         }
         
         const time = performance.now() * 0.001;
