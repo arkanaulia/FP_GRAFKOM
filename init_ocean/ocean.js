@@ -311,7 +311,6 @@ function SceneManager() {
         }
         if(key_press.ArrowRight)
         {
-<<<<<<< HEAD
             if (key_press.ArrowUp || key_press.ArrowDown)
                 kapal.rotation.y -= rotation_speed;
         }
@@ -319,15 +318,6 @@ function SceneManager() {
         {
             if (key_press.ArrowUp || key_press.ArrowDown)
                 kapal.rotation.y += rotation_speed;
-=======
-            kapal.position.z += speed;
-            kapal.rotation.y -= rotation_speed;
-        }
-        if(key_press.ArrowLeft)
-        {
-            kapal.position.z -= speed;
-            kapal.rotation.y += rotation_speed;
->>>>>>> 399302f9bac0a93074535b1de3f1a0dfd5cdef39
         }
         
         const time = performance.now() * 0.001;
