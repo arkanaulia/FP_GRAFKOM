@@ -73,8 +73,8 @@ function SceneManager() {
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
     const sun = new THREE.Vector3();
 
-    const theta = Math.PI * (0.49 - 0.5);
-    const phi = 2 * Math.PI * (0.205 - 0.5);
+    const theta = Math.PI * (0.49 - 0.55);
+    const phi = 2 * Math.PI * (0.205 - 0.4);
 
     // sun's position
     sun.x = Math.cos(phi);
@@ -136,6 +136,100 @@ function SceneManager() {
             console.log('An Error Occurred');
         }
     )
+
+
+    // rumah air
+    let root2;
+    let rumah1;
+    // let mixer;
+    // loaderGLTF = new GLTFLoader();
+    loaderGLTF.load('./model/rumahlaut1.gltf', function (gltf) {
+        console.log(gltf);
+        gltf.scene.scale.set(5,5,5);
+        gltf.scene.position.set(40,0,-50);
+        root2 = gltf.scene;
+        scene.add(root2);
+        console.log(dumpObject(root2).join('\n'));
+        rumah1 = root2.getObjectByName('Wood_support3');
+        root2.traverse(function (object) {
+            if (object.isMesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            }
+        });
+
+        // mixer = new THREE.AnimationMixer( root );
+    },
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + "% Loaded");
+        },
+        function (error) {
+            console.log('An Error Occurred');
+        }
+    )
+
+    // rumah1.position.x = 2;
+
+    // rumah air
+    let root3;
+    let rumah2;
+    // let mixer;
+    // loaderGLTF = new GLTFLoader();
+    loaderGLTF.load('./model/rumah2.gltf', function (gltf) {
+        console.log(gltf);
+        gltf.scene.scale.set(5,5,5);
+        gltf.scene.position.set(-200,20,-200);
+        root3 = gltf.scene;
+        scene.add(root3);
+        console.log(dumpObject(root3).join('\n'));
+        rumah2 = root3.getObjectByName('Wood');
+        root3.traverse(function (object) {
+            if (object.isMesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            }
+        });
+
+        // mixer = new THREE.AnimationMixer( root );
+    },
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + "% Loaded");
+        },
+        function (error) {
+            console.log('An Error Occurred');
+        }
+    )
+
+    // rumah air
+    let root4;
+    let rumah3;
+    // let mixer;
+    // loaderGLTF = new GLTFLoader();
+    loaderGLTF.load('./model/rumah3.gltf', function (gltf) {
+        console.log(gltf);
+        gltf.scene.scale.set(5,5,5);
+        gltf.scene.position.set(-50,20,-400);
+        root4 = gltf.scene;
+        scene.add(root4);
+        console.log(dumpObject(root4).join('\n'));
+        rumah3 = root4.getObjectByName('m_WoodenBeams');
+        root4.traverse(function (object) {
+            if (object.isMesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            }
+        });
+
+        // mixer = new THREE.AnimationMixer( root );
+    },
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + "% Loaded");
+        },
+        function (error) {
+            console.log('An Error Occurred');
+        }
+    )
+
 
     /*
      * Light
@@ -217,6 +311,7 @@ function SceneManager() {
         }
         if(key_press.ArrowRight)
         {
+<<<<<<< HEAD
             if (key_press.ArrowUp || key_press.ArrowDown)
                 kapal.rotation.y -= rotation_speed;
         }
@@ -224,6 +319,15 @@ function SceneManager() {
         {
             if (key_press.ArrowUp || key_press.ArrowDown)
                 kapal.rotation.y += rotation_speed;
+=======
+            kapal.position.z += speed;
+            kapal.rotation.y -= rotation_speed;
+        }
+        if(key_press.ArrowLeft)
+        {
+            kapal.position.z -= speed;
+            kapal.rotation.y += rotation_speed;
+>>>>>>> 399302f9bac0a93074535b1de3f1a0dfd5cdef39
         }
         
         const time = performance.now() * 0.001;
