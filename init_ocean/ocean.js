@@ -8,7 +8,8 @@ import { Sky } from 'https://threejs.org/examples/jsm/objects/Sky.js';
 import { Clock } from '../JS/three.module.js';
 
 // main();
-
+var root;
+var kapal;
 /*
  * Key Press
  */
@@ -22,6 +23,17 @@ const key_press = {
 /*
  * Third Person Camera
  */
+
+var camera, goal;
+
+var dir = new THREE.Vector3;
+var a = new THREE.Vector3;
+var b = new THREE.Vector3;
+
+/*
+ * END Third Person Camera
+ */
+
 
 
 /*
@@ -58,12 +70,14 @@ function SceneManager() {
     /*
      * Camera
      */
-    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 20000);
-    camera.position.set(30, 30, 100);
+    camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 20000);
+    camera.position.set(0, 40, 0);
     // const thirdPersonCamera = new ThirdPersonCamera({
     //     camera: camera,
     // });
-
+    goal = new THREE.Object3D;
+    goal.position.x = -20;
+    goal.add( camera );
     /*
      * Object
      */
@@ -119,8 +133,7 @@ function SceneManager() {
     const waterUniforms = water.material.uniforms;
 
     // Submarine 3D
-    let root;
-    let kapal;
+
     let mixer;
     const loaderGLTF = new GLTFLoader();
     loaderGLTF.load('./model/scene.gltf', function (gltf) {
@@ -256,12 +269,12 @@ function SceneManager() {
     /*
      * Control
      */
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.maxPolarAngle = Math.PI * 0.495;
-    controls.target.set(0, 10, 0);
-    controls.minDistance = 40.0;
-    controls.maxDistance = 500.0;
-    controls.update();
+    // const controls = new OrbitControls(camera, renderer.domElement);
+    // controls.maxPolarAngle = Math.PI * 0.495;
+    // controls.target.set(0, 10, 0);
+    // controls.minDistance = 40.0;
+    // controls.maxDistance = 500.0;
+    // controls.update();
 
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
@@ -305,6 +318,7 @@ function SceneManager() {
      */
     let speed = 0.5;
     let rotation_speed = 0.02;
+
     this.update = function () {  
         let clock = new THREE.Clock();
 
@@ -324,18 +338,55 @@ function SceneManager() {
         if(key_press.ArrowRight)
         {
             if (key_press.ArrowUp)
-                kapal.rotation.y -= rotation_speed;
+                // kapal.rotation.y -= rotation_speed;
+                kapal.rotateY(-rotation_speed);
             else if (key_press.ArrowDown)
-                kapal.rotation.y += rotation_speed;
+                // kapal.rotation.y += rotation_speed;
+                kapal.rotateY(+rotation_speed);
         }
+
         if(key_press.ArrowLeft)
         {
             if (key_press.ArrowUp)
-                kapal.rotation.y += rotation_speed;
+                // kapal.rotation.y += rotation_speed;
+                kapal.rotateY(+rotation_speed);
             else if (key_press.ArrowDown)
-                kapal.rotation.y -= rotation_speed;
+                // kapal.rotation.y -= rotation_speed;
+                kapal.rotateY(-rotation_speed);
         }
-        
+        // console.log(kapal.type)
+
+        a.lerp(kapal.position, 0.6);
+        b.copy(goal.position);
+
+        // dir.copy( a ).sub( b ).normalize();
+        dir.copy( a ).sub( b );
+        // const dis = (a.distanceTo( b ) - SafetyDistance);
+        // console.log("dir", dir);
+        // goal.position.add( dir);
+        var rotation_k = new THREE.Euler().setFromQuaternion( kapal.quaternion, "ZXY" );
+        let yaw_kapal = - (rotation_k.y)
+        // console.log("dis", dis);
+        goal.position.addScaledVector( new THREE.Vector3(
+            dir.x - (Math.cos(yaw_kapal) * 70), dir.y,
+            dir.z - (Math.sin(yaw_kapal) * 70)), 0.01 );
+        // goal.position.set(kapal.position.x - (Math.cos(yaw_kapal) * 70), kapal.position.y,
+        //     kapal.position.z - (Math.sin(yaw_kapal) * 70))
+        console.log("kapalpos", kapal.position);
+        console.log("goalpos", goal.position);
+
+        // console.log("kapalYaw", yaw_kapal);
+        // console.log("kapalRot", (yaw_kapal / Math.PI) * 180);
+        // console.log("sinrot", Math.sin(-kapal.rotation.y));
+
+        // kapal.rotateY(+0.010)
+        // kapal.rotation.order = "XYZ"
+
+        // console.log("kapalpos", new THREE.Vector3( kapal.position.x, kapal.position.y + 10, kapal.position.z ));
+
+        // camera.lookAt( kapal.position );
+        camera.lookAt( new THREE.Vector3( kapal.position.x, kapal.position.y +25, kapal.position.z ) );
+
         const time = performance.now() * 0.001;
         root.position.y = Math.sin(time) * 2;
         // root.rotation.x = time * 0.3;
