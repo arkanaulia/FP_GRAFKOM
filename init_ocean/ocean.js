@@ -6,6 +6,7 @@ import { GLTFLoader } from '../JS/GLTFLoader.js';
 import { Water } from 'https://threejs.org/examples/jsm/objects/Water.js';
 import { Sky } from 'https://threejs.org/examples/jsm/objects/Sky.js';
 import { Clock } from '../JS/three.module.js';
+import { ColladaLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/ColladaLoader.js';
 
 // main();
 var root;
@@ -49,6 +50,86 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
         dumpObject(child, lines, isLast, newPrefix);
     });
     return lines;
+}
+
+function card1(scene){
+    let root5;
+    let card1;
+    // let mixer;
+    const loaderGLTF = new GLTFLoader();
+    loaderGLTF.load('./model/card1.gltf', function (gltf) {
+        console.log(gltf);
+        gltf.scene.scale.set(10,10,10);
+        // gltf.scene.position.set(-50,20,-400);
+        root5 = gltf.scene;
+        scene.add(root5);
+        console.log(dumpObject(root5).join('\n'));
+        card1 = root5.getObjectByName('Mesh_0');
+        root5.traverse(function (object) {
+            if (object.isMesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            }
+        });
+
+        // mixer = new THREE.AnimationMixer( root );
+    },
+    )
+
+}
+
+function card2(scene){
+    let root5;
+    let card1;
+    // let mixer;
+    const loaderGLTF = new GLTFLoader();
+    loaderGLTF.load('./model/card2.gltf', function (gltf) {
+        console.log(gltf);
+        gltf.scene.scale.set(10,10,10);
+        // gltf.scene.position.set(-50,20,-400);
+        gltf.scene.position.set(100,0,0);
+        root5 = gltf.scene;
+        scene.add(root5);
+        console.log(dumpObject(root5).join('\n'));
+        card1 = root5.getObjectByName('Mesh_0');
+        root5.traverse(function (object) {
+            if (object.isMesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            }
+        });
+
+        // mixer = new THREE.AnimationMixer( root );
+    },
+    )
+
+}
+
+function card3(scene){
+    let root5;
+    let card1;
+    // let mixer;
+    const loaderGLTF = new GLTFLoader();
+    loaderGLTF.load('./model/card3.gltf', function (gltf) {
+        console.log(gltf);
+        gltf.scene.scale.set(10,10,10);
+        // gltf.scene.position.set(-50,20,-400);
+        gltf.scene.position.set(200,0,0);
+        root5 = gltf.scene;
+        scene.add(root5);
+        console.log(dumpObject(root5).join('\n'));
+        card1 = root5.getObjectByName('Mesh_0');
+        root5.traverse(function (object) {
+            if (object.isMesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            }
+        });
+
+        // mixer = new THREE.AnimationMixer( root );
+    },
+    )
+
 }
 
 function SceneManager() {
@@ -252,6 +333,10 @@ function SceneManager() {
         }
     )
 
+    // card1
+    card1(scene);
+    card2(scene);
+    card3(scene);
 
     /*
      * Light
