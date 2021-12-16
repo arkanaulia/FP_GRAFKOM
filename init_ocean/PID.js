@@ -19,7 +19,7 @@ class PID {
     setTarget(target_){
         this.target = target_;
         this.error_now = this.target - this.curr_condition;
-        console.log(this.error_now)
+        // console.log(this.error_now)
         return this.getOutput();
     }
 

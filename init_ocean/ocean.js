@@ -23,6 +23,11 @@ const loadingManager = new THREE.LoadingManager(() => {
 
 var root;
 var kapal;
+
+var cards = [];
+var collision_bbox = [];
+collision_bbox.push([110,-115]);
+collision_bbox.push([15,-25]);
 /*
  * Key Press
  */
@@ -65,6 +70,33 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     return lines;
 }
 
+function isInsideBoundingBox(){
+    let inside_bbox = false;
+
+    if (kapal.position.x <= collision_bbox[0][0] && kapal.position.x >= collision_bbox[1][0]
+        && kapal.position.z >= collision_bbox[0][1] && kapal.position.z <= collision_bbox[1][1]){
+        inside_bbox = true;
+        console.log("MASUK BBOX");
+    }
+
+    return inside_bbox;
+}
+
+function isInFrontBoundingBox(){
+    let inside_bbox = false;
+
+    var rotation_k = new THREE.Euler().setFromQuaternion(kapal.quaternion, "ZXY");
+    let yaw_kapal = - (rotation_k.y)
+    let distance = 4;
+    if ((kapal.position.x + (Math.cos(yaw_kapal) * distance)) <= collision_bbox[0][0] && (kapal.position.x + (Math.cos(yaw_kapal) * distance)) >= collision_bbox[1][0]
+        && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) >= collision_bbox[0][1] && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) <= collision_bbox[1][1]){
+        inside_bbox = true;
+        console.log("MASUK BBOX");
+    }
+
+    return inside_bbox;
+}
+
 function card1(scene) {
     let root5;
     let card1;
@@ -78,6 +110,8 @@ function card1(scene) {
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
         card1 = root5.getObjectByName('Mesh_0');
+        // card1.translateY(-5);
+        cards.push(card1);
         root5.traverse(function (object) {
             if (object.isMesh) {
                 object.castShadow = true;
@@ -88,6 +122,8 @@ function card1(scene) {
         // mixer = new THREE.AnimationMixer( root );
     },
     )
+
+
 
 }
 
@@ -105,16 +141,18 @@ function card2(scene) {
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
         card1 = root5.getObjectByName('Mesh_0');
+        cards.push(card1);
         root5.traverse(function (object) {
-            if (object.isMesh) {
-                object.castShadow = true;
-                object.receiveShadow = true;
-            }
+        if (object.isMesh) {
+            object.castShadow = true;
+            object.receiveShadow = true;
+        }
         });
 
         // mixer = new THREE.AnimationMixer( root );
     },
     )
+
 
 }
 
@@ -132,6 +170,7 @@ function card3(scene) {
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
         card1 = root5.getObjectByName('Mesh_0');
+        cards.push(card1);
         root5.traverse(function (object) {
             if (object.isMesh) {
                 object.castShadow = true;
@@ -142,6 +181,7 @@ function card3(scene) {
         // mixer = new THREE.AnimationMixer( root );
     },
     )
+
 
 }
 
@@ -257,6 +297,7 @@ function SceneManager() {
     // rumah air
     let root2;
     let rumah1;
+    var box = new THREE.Box3();
     // let mixer;
     // loaderGLTF = new GLTFLoader();
     loaderGLTF.load('./model/rumahlaut1.gltf', function (gltf) {
@@ -267,6 +308,7 @@ function SceneManager() {
         scene.add(root2);
         console.log(dumpObject(root2).join('\n'));
         rumah1 = root2.getObjectByName('Wood_support3');
+        box.setFromObject( rumah1 );
         root2.traverse(function (object) {
             if (object.isMesh) {
                 object.castShadow = true;
@@ -284,6 +326,15 @@ function SceneManager() {
         }
     )
 
+    // console.log("BOX UKURAN",box);
+    // console.log("RUMAH 1",rumah1.position);
+    // var geometry_rumah1 = new THREE.BoxGeometry(95,60,90,1,1,1);
+    // var material_ = new THREE.MeshNormalMaterial( {color: 0xffff00} );
+    // var boxx = new THREE.Mesh( geometry_rumah1, material_ );
+    // boxx.position.set(42.5 + 15, 0, -45 - 25);
+    // scene.add(boxx);
+    // console.log("BOX UKURAN RUMAH 1",boxx.parameters.width, boxx.parameters.depth);
+    console.log("BBOX COLLISION",collision_bbox);
     // rumah1.position.x = 2;
 
     // rumah air
@@ -351,6 +402,10 @@ function SceneManager() {
     card2(scene);
     card3(scene);
 
+    console.log("CARDS ISINYA",cards, cards.length);
+
+
+
     /*
      * Light
      */
@@ -391,7 +446,14 @@ function SceneManager() {
             else if (e.code === "ArrowDown") {
                 key_press.ArrowDown = true;
             }
+        }else if (e.code === "KeyQ"){
+            // console.log(cards);
+            // boxx.translateX(2);
+            cards[0].translateY(-1);
+            cards[0].translateZ(1);
         }
+
+        // console.log("e code", e.code);
     }
 
     function onKeyUp(e) {
@@ -431,6 +493,12 @@ function SceneManager() {
         sound.play();
     });
 
+    //Hide all cards
+    // for (let i = 0; i < 3; i++){
+    //     cards[i].position.y = -5;
+    //     console.log("BAWAH card",i);
+    // }
+
     /*
      * Animasi
      */
@@ -439,20 +507,23 @@ function SceneManager() {
 
     this.update = function () {
         let clock = new THREE.Clock();
-
+        isInsideBoundingBox();
         // Animates water
         water.material.uniforms['time'].value += 1.0 / 60.0;
 
         // Camera Update
 
-        if (key_press.ArrowUp) {
+        if (key_press.ArrowUp && !isInFrontBoundingBox()) {
             let cur_speed = pid_control_kapal_throtle.setTarget(speed)
             kapal.translateX(cur_speed);
         } else if (key_press.ArrowDown) {
             let cur_speed = pid_control_kapal_throtle.setTarget(-speed)
             kapal.translateX(cur_speed);
+        } else if(isInFrontBoundingBox()){
+            pid_control_kapal_throtle.setTarget(0);
+            kapal.translateX(0);
         } else {
-            let cur_speed = pid_control_kapal_throtle.setTarget(0)
+            let cur_speed = pid_control_kapal_throtle.setTarget(0);
             kapal.translateX(cur_speed);
         }
 
@@ -466,7 +537,7 @@ function SceneManager() {
                 let cur_speed = pid_control_kapal_turn.setTarget(-rotation_speed * (vel_kapal));
                 kapal.rotateY(cur_speed);
             } else if (vel_kapal < -thresh_vel_to_turn) {
-                let cur_speed = pid_control_kapal_turn.setTarget(rotation_speed * (vel_kapal));
+                let cur_speed = pid_control_kapal_turn.setTarget(-rotation_speed * (vel_kapal));
                 kapal.rotateY(cur_speed);
             }
 
@@ -481,7 +552,7 @@ function SceneManager() {
                 let cur_speed = pid_control_kapal_turn.setTarget(rotation_speed * (vel_kapal));
                 kapal.rotateY(cur_speed);
             } else if (vel_kapal < -thresh_vel_to_turn) {
-                let cur_speed = pid_control_kapal_turn.setTarget(-rotation_speed * (vel_kapal));
+                let cur_speed = pid_control_kapal_turn.setTarget(rotation_speed * (vel_kapal));
                 kapal.rotateY(cur_speed);
             }
 
