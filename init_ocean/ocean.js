@@ -7,6 +7,7 @@ import { Water } from 'https://threejs.org/examples/jsm/objects/Water.js';
 import { Sky } from 'https://threejs.org/examples/jsm/objects/Sky.js';
 import { Clock } from '../JS/three.module.js';
 import { ColladaLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/ColladaLoader.js';
+import { PID } from './PID.js';
 
 // main();
 var root;
