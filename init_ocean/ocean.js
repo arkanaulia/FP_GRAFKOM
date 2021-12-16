@@ -11,15 +11,15 @@ import { PID } from './PID.js';
 
 // main();
 
-const loadingManager = new THREE.LoadingManager( () => {
-	
-    const loadingScreen = document.getElementById( 'loading-screen' );
-    loadingScreen.classList.add( 'fade-out' );
-    
+const loadingManager = new THREE.LoadingManager(() => {
+
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.classList.add('fade-out');
+
     // optional: remove loader from DOM via event listener
-    loadingScreen.addEventListener( 'transitionend', onTransitionEnd );
-    
-} );
+    loadingScreen.addEventListener('transitionend', onTransitionEnd);
+
+});
 
 var root;
 var kapal;
@@ -52,7 +52,7 @@ let pid_control_kapal_turn = new PID(0.2, 0.03, 0.04);
 
 /*
  * SceneGraph
- */ 
+ */
 function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     const localPrefix = isLast ? '└─' : '├─';
     lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
@@ -65,14 +65,14 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     return lines;
 }
 
-function card1(scene){
+function card1(scene) {
     let root5;
     let card1;
     // let mixer;
-    const loaderGLTF = new GLTFLoader( loadingManager );
+    const loaderGLTF = new GLTFLoader(loadingManager);
     loaderGLTF.load('./model/card1.gltf', function (gltf) {
         console.log(gltf);
-        gltf.scene.scale.set(10,10,10);
+        gltf.scene.scale.set(10, 10, 10);
         // gltf.scene.position.set(-50,20,-400);
         root5 = gltf.scene;
         scene.add(root5);
@@ -91,16 +91,16 @@ function card1(scene){
 
 }
 
-function card2(scene){
+function card2(scene) {
     let root5;
     let card1;
     // let mixer;
     const loaderGLTF = new GLTFLoader(loadingManager);
     loaderGLTF.load('./model/card2.gltf', function (gltf) {
         console.log(gltf);
-        gltf.scene.scale.set(10,10,10);
+        gltf.scene.scale.set(10, 10, 10);
         // gltf.scene.position.set(-50,20,-400);
-        gltf.scene.position.set(100,0,0);
+        gltf.scene.position.set(100, 0, 0);
         root5 = gltf.scene;
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
@@ -118,16 +118,16 @@ function card2(scene){
 
 }
 
-function card3(scene){
+function card3(scene) {
     let root5;
     let card1;
     // let mixer;
-    const loaderGLTF = new GLTFLoader( loadingManager );
+    const loaderGLTF = new GLTFLoader(loadingManager);
     loaderGLTF.load('./model/card3.gltf', function (gltf) {
         console.log(gltf);
-        gltf.scene.scale.set(10,10,10);
+        gltf.scene.scale.set(10, 10, 10);
         // gltf.scene.position.set(-50,20,-400);
-        gltf.scene.position.set(200,0,0);
+        gltf.scene.position.set(200, 0, 0);
         root5 = gltf.scene;
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
@@ -171,7 +171,7 @@ function SceneManager() {
     // });
     goal = new THREE.Object3D;
     goal.position.x = -20;
-    goal.add( camera );
+    goal.add(camera);
     /*
      * Object
      */
@@ -243,7 +243,7 @@ function SceneManager() {
             }
         });
 
-        mixer = new THREE.AnimationMixer( root );
+        mixer = new THREE.AnimationMixer(root);
     },
         function (xhr) {
             console.log((xhr.loaded / xhr.total * 100) + "% Loaded");
@@ -261,8 +261,8 @@ function SceneManager() {
     // loaderGLTF = new GLTFLoader();
     loaderGLTF.load('./model/rumahlaut1.gltf', function (gltf) {
         console.log(gltf);
-        gltf.scene.scale.set(5,5,5);
-        gltf.scene.position.set(40,0,-50);
+        gltf.scene.scale.set(5, 5, 5);
+        gltf.scene.position.set(40, 0, -50);
         root2 = gltf.scene;
         scene.add(root2);
         console.log(dumpObject(root2).join('\n'));
@@ -293,8 +293,8 @@ function SceneManager() {
     // loaderGLTF = new GLTFLoader();
     loaderGLTF.load('./model/rumah2.gltf', function (gltf) {
         console.log(gltf);
-        gltf.scene.scale.set(5,5,5);
-        gltf.scene.position.set(-200,20,-200);
+        gltf.scene.scale.set(5, 5, 5);
+        gltf.scene.position.set(-200, 20, -200);
         root3 = gltf.scene;
         scene.add(root3);
         console.log(dumpObject(root3).join('\n'));
@@ -323,8 +323,8 @@ function SceneManager() {
     // loaderGLTF = new GLTFLoader();
     loaderGLTF.load('./model/rumah3.gltf', function (gltf) {
         console.log(gltf);
-        gltf.scene.scale.set(5,5,5);
-        gltf.scene.position.set(-50,20,-400);
+        gltf.scene.scale.set(5, 5, 5);
+        gltf.scene.position.set(-50, 20, -400);
         root4 = gltf.scene;
         scene.add(root4);
         console.log(dumpObject(root4).join('\n'));
@@ -355,7 +355,7 @@ function SceneManager() {
      * Light
      */
     const direcLight = new THREE.DirectionalLight(0xffffff, 1);
-    direcLight.position.set( sun.x, sun.y, sun.z);
+    direcLight.position.set(sun.x, sun.y, sun.z);
     direcLight.target.position.set(0, 0, 0);
     direcLight.castShadow = true;
     direcLight.shadow.mapSize.width = 2048;
@@ -363,7 +363,7 @@ function SceneManager() {
     scene.add(direcLight);
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
-    
+
     /*
      * Control
      */
@@ -377,39 +377,59 @@ function SceneManager() {
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
 
-    function onKeyDown(e){
-        if(e.code in key_press){
-            if(e.code === "ArrowLeft"){
+    function onKeyDown(e) {
+        if (e.code in key_press) {
+            if (e.code === "ArrowLeft") {
                 key_press.ArrowLeft = true;
             }
-            else if(e.code === "ArrowUp"){
+            else if (e.code === "ArrowUp") {
                 key_press.ArrowUp = true;
             }
-            else if(e.code === "ArrowRight"){
+            else if (e.code === "ArrowRight") {
                 key_press.ArrowRight = true;
             }
-            else if(e.code === "ArrowDown"){
+            else if (e.code === "ArrowDown") {
                 key_press.ArrowDown = true;
             }
         }
     }
 
-    function onKeyUp(e){
-        if(e.code in key_press){
-            if(e.code === "ArrowLeft"){
+    function onKeyUp(e) {
+        if (e.code in key_press) {
+            if (e.code === "ArrowLeft") {
                 key_press.ArrowLeft = false;
             }
-            if(e.code === "ArrowUp"){
+            if (e.code === "ArrowUp") {
                 key_press.ArrowUp = false;
             }
-            if(e.code === "ArrowRight"){
+            if (e.code === "ArrowRight") {
                 key_press.ArrowRight = false;
             }
-            if(e.code === "ArrowDown"){
+            if (e.code === "ArrowDown") {
                 key_press.ArrowDown = false;
             }
         }
     }
+
+    /*
+     * music
+     */
+
+    // create an AudioListener and add it to the camera
+    const listener = new THREE.AudioListener();
+    camera.add(listener);
+
+    // create a global audio source
+    const sound = new THREE.Audio(listener);
+
+    // load a sound and set it as the Audio object's buffer
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load('./model/ocean.wav', function (buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(true);
+        sound.setVolume(0.5);
+        sound.play();
+    });
 
     /*
      * Animasi
@@ -417,7 +437,7 @@ function SceneManager() {
     let speed = 1;
     let rotation_speed = 0.02;
 
-    this.update = function () {  
+    this.update = function () {
         let clock = new THREE.Clock();
 
         // Animates water
@@ -425,17 +445,15 @@ function SceneManager() {
 
         // Camera Update
 
-        if (key_press.ArrowUp)
-        {
+        if (key_press.ArrowUp) {
             let cur_speed = pid_control_kapal_throtle.setTarget(speed)
-            kapal.translateX(cur_speed );
-        }else if(key_press.ArrowDown)
-        {
+            kapal.translateX(cur_speed);
+        } else if (key_press.ArrowDown) {
             let cur_speed = pid_control_kapal_throtle.setTarget(-speed)
-            kapal.translateX(cur_speed );
-        }else{
+            kapal.translateX(cur_speed);
+        } else {
             let cur_speed = pid_control_kapal_throtle.setTarget(0)
-            kapal.translateX(cur_speed );
+            kapal.translateX(cur_speed);
         }
 
 
@@ -443,12 +461,11 @@ function SceneManager() {
         let thresh_vel_to_turn = 0.001;
         let vel_kapal = pid_control_kapal_throtle.getCurrentCond();
 
-        if(key_press.ArrowRight)
-        {
-            if (vel_kapal > thresh_vel_to_turn){
+        if (key_press.ArrowRight) {
+            if (vel_kapal > thresh_vel_to_turn) {
                 let cur_speed = pid_control_kapal_turn.setTarget(-rotation_speed * (vel_kapal));
                 kapal.rotateY(cur_speed);
-            }else if(vel_kapal < -thresh_vel_to_turn){
+            } else if (vel_kapal < -thresh_vel_to_turn) {
                 let cur_speed = pid_control_kapal_turn.setTarget(rotation_speed * (vel_kapal));
                 kapal.rotateY(cur_speed);
             }
@@ -459,12 +476,11 @@ function SceneManager() {
             // else if (key_press.ArrowDown)
             //     // kapal.rotation.y += rotation_speed;
             //     kapal.rotateY(+rotation_speed);
-        }else if(key_press.ArrowLeft)
-        {
-            if (vel_kapal > thresh_vel_to_turn){
+        } else if (key_press.ArrowLeft) {
+            if (vel_kapal > thresh_vel_to_turn) {
                 let cur_speed = pid_control_kapal_turn.setTarget(rotation_speed * (vel_kapal));
                 kapal.rotateY(cur_speed);
-            }else if(vel_kapal < -thresh_vel_to_turn){
+            } else if (vel_kapal < -thresh_vel_to_turn) {
                 let cur_speed = pid_control_kapal_turn.setTarget(-rotation_speed * (vel_kapal));
                 kapal.rotateY(cur_speed);
             }
@@ -475,7 +491,7 @@ function SceneManager() {
             // else if (key_press.ArrowDown)
             //     // kapal.rotation.y -= rotation_speed;
             //     kapal.rotateY(-rotation_speed);
-        }else{
+        } else {
             let cur_speed = pid_control_kapal_turn.setTarget(0)
             kapal.rotateY(cur_speed);
         }
@@ -485,16 +501,16 @@ function SceneManager() {
         b.copy(goal.position);
 
         // dir.copy( a ).sub( b ).normalize();
-        dir.copy( a ).sub( b );
+        dir.copy(a).sub(b);
         // const dis = (a.distanceTo( b ) - SafetyDistance);
         // console.log("dir", dir);
         // goal.position.add( dir);
-        var rotation_k = new THREE.Euler().setFromQuaternion( kapal.quaternion, "ZXY" );
+        var rotation_k = new THREE.Euler().setFromQuaternion(kapal.quaternion, "ZXY");
         let yaw_kapal = - (rotation_k.y)
         // console.log("dis", dis);
-        goal.position.addScaledVector( new THREE.Vector3(
+        goal.position.addScaledVector(new THREE.Vector3(
             dir.x - (Math.cos(yaw_kapal) * 70), dir.y,
-            dir.z - (Math.sin(yaw_kapal) * 70)), 0.01 );
+            dir.z - (Math.sin(yaw_kapal) * 70)), 0.01);
         // goal.position.set(kapal.position.x - (Math.cos(yaw_kapal) * 70), kapal.position.y,
         //     kapal.position.z - (Math.sin(yaw_kapal) * 70))
         // console.log("kapalpos", kapal.position);
@@ -510,7 +526,7 @@ function SceneManager() {
         // console.log("kapalpos", new THREE.Vector3( kapal.position.x, kapal.position.y + 10, kapal.position.z ));
 
         // camera.lookAt( kapal.position );
-        camera.lookAt( new THREE.Vector3( kapal.position.x, kapal.position.y +25, kapal.position.z ) );
+        camera.lookAt(new THREE.Vector3(kapal.position.x, kapal.position.y + 25, kapal.position.z));
 
         const time = performance.now() * 0.001;
         root.position.y = Math.sin(time) * 2;
