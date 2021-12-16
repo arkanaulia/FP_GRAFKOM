@@ -10,6 +10,17 @@ import { ColladaLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 import { PID } from './PID.js';
 
 // main();
+
+const loadingManager = new THREE.LoadingManager( () => {
+	
+    const loadingScreen = document.getElementById( 'loading-screen' );
+    loadingScreen.classList.add( 'fade-out' );
+    
+    // optional: remove loader from DOM via event listener
+    loadingScreen.addEventListener( 'transitionend', onTransitionEnd );
+    
+} );
+
 var root;
 var kapal;
 /*
@@ -58,7 +69,7 @@ function card1(scene){
     let root5;
     let card1;
     // let mixer;
-    const loaderGLTF = new GLTFLoader();
+    const loaderGLTF = new GLTFLoader( loadingManager );
     loaderGLTF.load('./model/card1.gltf', function (gltf) {
         console.log(gltf);
         gltf.scene.scale.set(10,10,10);
@@ -84,7 +95,7 @@ function card2(scene){
     let root5;
     let card1;
     // let mixer;
-    const loaderGLTF = new GLTFLoader();
+    const loaderGLTF = new GLTFLoader(loadingManager);
     loaderGLTF.load('./model/card2.gltf', function (gltf) {
         console.log(gltf);
         gltf.scene.scale.set(10,10,10);
@@ -111,7 +122,7 @@ function card3(scene){
     let root5;
     let card1;
     // let mixer;
-    const loaderGLTF = new GLTFLoader();
+    const loaderGLTF = new GLTFLoader( loadingManager );
     loaderGLTF.load('./model/card3.gltf', function (gltf) {
         console.log(gltf);
         gltf.scene.scale.set(10,10,10);
@@ -218,7 +229,7 @@ function SceneManager() {
     // Submarine 3D
 
     let mixer;
-    const loaderGLTF = new GLTFLoader();
+    const loaderGLTF = new GLTFLoader(loadingManager);
     loaderGLTF.load('./model/scene.gltf', function (gltf) {
         console.log(gltf);
         root = gltf.scene;
