@@ -35,7 +35,8 @@ var b = new THREE.Vector3;
  * END Third Person Camera
  */
 
-
+let pid_control_kapal_throtle = new PID(0.2, 0.01, 0.03);
+let pid_control_kapal_turn = new PID(0.2, 0.03, 0.04);
 
 /*
  * SceneGraph
@@ -401,7 +402,7 @@ function SceneManager() {
     /*
      * Animasi
      */
-    let speed = 0.5;
+    let speed = 1;
     let rotation_speed = 0.02;
 
     this.update = function () {  
@@ -414,30 +415,57 @@ function SceneManager() {
 
         if (key_press.ArrowUp)
         {
-            kapal.translateX(speed );
-        }
-        if(key_press.ArrowDown)
+            let cur_speed = pid_control_kapal_throtle.setTarget(speed)
+            kapal.translateX(cur_speed );
+        }else if(key_press.ArrowDown)
         {
-            kapal.translateX(-speed );
-        }
-        if(key_press.ArrowRight)
-        {
-            if (key_press.ArrowUp)
-                // kapal.rotation.y -= rotation_speed;
-                kapal.rotateY(-rotation_speed);
-            else if (key_press.ArrowDown)
-                // kapal.rotation.y += rotation_speed;
-                kapal.rotateY(+rotation_speed);
+            let cur_speed = pid_control_kapal_throtle.setTarget(-speed)
+            kapal.translateX(cur_speed );
+        }else{
+            let cur_speed = pid_control_kapal_throtle.setTarget(0)
+            kapal.translateX(cur_speed );
         }
 
-        if(key_press.ArrowLeft)
+
+        //Belok, threshold kecepatan
+        let thresh_vel_to_turn = 0.001;
+        let vel_kapal = pid_control_kapal_throtle.getCurrentCond();
+
+        if(key_press.ArrowRight)
         {
-            if (key_press.ArrowUp)
-                // kapal.rotation.y += rotation_speed;
-                kapal.rotateY(+rotation_speed);
-            else if (key_press.ArrowDown)
-                // kapal.rotation.y -= rotation_speed;
-                kapal.rotateY(-rotation_speed);
+            if (vel_kapal > thresh_vel_to_turn){
+                let cur_speed = pid_control_kapal_turn.setTarget(-rotation_speed * (vel_kapal));
+                kapal.rotateY(cur_speed);
+            }else if(vel_kapal < -thresh_vel_to_turn){
+                let cur_speed = pid_control_kapal_turn.setTarget(rotation_speed * (vel_kapal));
+                kapal.rotateY(cur_speed);
+            }
+
+            // if (key_press.ArrowUp)
+            //     // kapal.rotation.y -= rotation_speed;
+            //     kapal.rotateY(-rotation_speed);
+            // else if (key_press.ArrowDown)
+            //     // kapal.rotation.y += rotation_speed;
+            //     kapal.rotateY(+rotation_speed);
+        }else if(key_press.ArrowLeft)
+        {
+            if (vel_kapal > thresh_vel_to_turn){
+                let cur_speed = pid_control_kapal_turn.setTarget(rotation_speed * (vel_kapal));
+                kapal.rotateY(cur_speed);
+            }else if(vel_kapal < -thresh_vel_to_turn){
+                let cur_speed = pid_control_kapal_turn.setTarget(-rotation_speed * (vel_kapal));
+                kapal.rotateY(cur_speed);
+            }
+
+            // if (key_press.ArrowUp)
+            //     // kapal.rotation.y += rotation_speed;
+            //     kapal.rotateY(+rotation_speed);
+            // else if (key_press.ArrowDown)
+            //     // kapal.rotation.y -= rotation_speed;
+            //     kapal.rotateY(-rotation_speed);
+        }else{
+            let cur_speed = pid_control_kapal_turn.setTarget(0)
+            kapal.rotateY(cur_speed);
         }
         // console.log(kapal.type)
 
@@ -457,8 +485,8 @@ function SceneManager() {
             dir.z - (Math.sin(yaw_kapal) * 70)), 0.01 );
         // goal.position.set(kapal.position.x - (Math.cos(yaw_kapal) * 70), kapal.position.y,
         //     kapal.position.z - (Math.sin(yaw_kapal) * 70))
-        console.log("kapalpos", kapal.position);
-        console.log("goalpos", goal.position);
+        // console.log("kapalpos", kapal.position);
+        // console.log("goalpos", goal.position);
 
         // console.log("kapalYaw", yaw_kapal);
         // console.log("kapalRot", (yaw_kapal / Math.PI) * 180);
