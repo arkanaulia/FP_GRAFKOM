@@ -777,7 +777,7 @@ function SceneManager() {
             let cur_speed = pid_control_kapal_throtle.setTarget(speed)
             kapal.translateX(cur_speed);
         } else if (key_press.ArrowDown) {
-            let cur_speed = pid_control_kapal_throtle.setTarget(-speed)
+            let cur_speed = pid_control_kapal_throtle.setTarget(-speed / 3)
             kapal.translateX(cur_speed);
         } else if (isInFrontBoundingBox()) {
             pid_control_kapal_throtle.setTarget(0);
@@ -855,13 +855,15 @@ function SceneManager() {
 
         let speed_kapal = pid_control_kapal_throtle.getCurrentCond();
         for(let i = 0; i < 25; i++){
-            if(speed_kapal > (i * 0.04)){
+            if(Math.abs(speed_kapal) > (i * 0.04)){
                 if (i != sound_pitch){
                     sounds_pitch_engine[i].setVolume(0.06);
                     sound_pitch = i;
                     console.log("GANTI PITCH");
                 }
                 // break;
+            }else if(i == 0 && speed_kapal <= 0.04){
+                sounds_pitch_engine[i].setVolume(0.06);
             }else{
                 sounds_pitch_engine[i].setVolume(0);
             }
