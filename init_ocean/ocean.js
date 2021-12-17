@@ -534,7 +534,7 @@ function SceneManager() {
     audioLoader.load('./model/ocean.wav', function (buffer) {
         sound.setBuffer(buffer);
         sound.setLoop(true);
-        sound.setVolume(0.5);
+        sound.setVolume(0.6);
         sound.play();
     });
 
@@ -857,13 +857,13 @@ function SceneManager() {
         for(let i = 0; i < 25; i++){
             if(Math.abs(speed_kapal) > (i * 0.04)){
                 if (i != sound_pitch){
-                    sounds_pitch_engine[i].setVolume(0.06);
+                    sounds_pitch_engine[i].setVolume(0.2);
                     sound_pitch = i;
                     console.log("GANTI PITCH");
                 }
                 // break;
             }else if(i == 0 && speed_kapal <= 0.04){
-                sounds_pitch_engine[i].setVolume(0.06);
+                sounds_pitch_engine[i].setVolume(0.2);
             }else{
                 sounds_pitch_engine[i].setVolume(0);
             }
