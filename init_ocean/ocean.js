@@ -21,23 +21,43 @@ const loadingManager = new THREE.LoadingManager(() => {
 
 });
 
+var card_showed_at = 0;
+var kapal_on_zone = 0;
+var kapal_on_zone_before = 0;
+
 var root;
 var kapal;
 
 var cards = [];
+var card_dist_to_island = 70;
+
 var collision_bbox = [];
-collision_bbox.push([110,-115]);
-collision_bbox.push([27,-25]);
-collision_bbox.push([43,-480]);
-collision_bbox.push([-125,-310]);
-collision_bbox.push([-136,-251]);
-collision_bbox.push([-270,-138]);
+collision_bbox.push([310,-115]);
+collision_bbox.push([227,-25]);
+collision_bbox.push([-146.5 - 200, -261.5 + 400]);
+collision_bbox.push([-259.5 - 200, -127.5 + 400]);
+collision_bbox.push([43,-480 - 200]);
+collision_bbox.push([-125,-310 - 200]);
 
 let card_zone = [];
-let bigger_than_coll = 1.5;
-for (let i =0; i < 6;i++){
-    card_zone.push([collision_bbox[i][0]*bigger_than_coll,collision_bbox[i][1]*bigger_than_coll]);
+let bigger_than_coll = 130;
+for (let i =0; i < 6;i+=2){
+    card_zone.push([collision_bbox[i][0] + bigger_than_coll,collision_bbox[i][1] - bigger_than_coll]);
+    card_zone.push([collision_bbox[i+1][0] - bigger_than_coll,collision_bbox[i+1][1] + bigger_than_coll]);
 }
+
+var all_rumah_pos_init = [];
+all_rumah_pos_init.push([240, 0, -50]);
+all_rumah_pos_init.push([-400, 20, 200]);
+all_rumah_pos_init.push([-50, 20, -600]);
+
+var all_cards_pos_init = [];
+all_cards_pos_init.push([270,-50,20]);
+all_cards_pos_init.push([-400, -50, 300]);
+all_cards_pos_init.push([-50, -50, -500]);
+
+console.log("CARD ZONE", card_zone)
+
 /*
  * Key Press
  */
@@ -56,7 +76,10 @@ var camera, goal;
 
 var dir = new THREE.Vector3;
 var a = new THREE.Vector3;
+var card_vector_camera = new THREE.Vector3;
 var b = new THREE.Vector3;
+let dist_camera = 70;
+
 
 /*
  * END Third Person Camera
@@ -80,16 +103,18 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     return lines;
 }
 
-function isInsideBoundingBox(){
-    let inside_bbox = false;
+function isInsideBoundingBoxCard(){
+    let zone = 0;
+    // for
+    for (let i = 0; i < 3; i++){
+        if ((kapal.position.x) <= card_zone[i*2][0] && (kapal.position.x) >= card_zone[i*2+1][0]
+            && (kapal.position.z) >= card_zone[i*2][1] && (kapal.position.z) <= card_zone[i*2+1][1]){
+            zone = i + 1;
+            // console.log("MASUK BBOX");
+        }
+    }
 
-    // if (kapal.position.x <= collision_bbox[0][0] && kapal.position.x >= collision_bbox[1][0]
-    //     && kapal.position.z >= collision_bbox[0][1] && kapal.position.z <= collision_bbox[1][1]){
-    //     inside_bbox = true;
-    //     console.log("MASUK BBOX");
-    // }
-
-    return inside_bbox;
+    return zone;
 }
 
 function isInFrontBoundingBox(){
@@ -111,16 +136,19 @@ function isInFrontBoundingBox(){
     return inside_bbox;
 }
 
-function getAngleOfCard(){
-    for (let i = 0; i < 6; i+=2){
-        if ((kapal.position.x + (Math.cos(yaw_kapal) * distance)) <= collision_bbox[i][0] && (kapal.position.x + (Math.cos(yaw_kapal) * distance)) >= collision_bbox[i+1][0]
-            && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) >= collision_bbox[i][1] && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) <= collision_bbox[i+1][1]){
-            inside_bbox = true;
-            // console.log("MASUK BBOX");
-        }
-    }
+function getAngleOfKapalToIsland(island_number){ //start from 0 island number
 
-    return
+    let x_island = (card_zone[island_number*2][0] + card_zone[island_number*2+1][0]) / 2;
+    let y_island = (card_zone[island_number*2][1] + card_zone[island_number*2+1][1]) / 2;
+    let angle_ = Math.atan2(kapal.position.x - x_island, kapal.position.z - y_island) - (Math.PI/4);
+    console.log("ANGLE TO ISLAND", island_number,angle_*180/Math.PI);
+
+    let res = angle_ / (Math.PI /2);
+
+    console.log("RETURN ANGLE CARD CNS", Math.ceil(res));
+    return Math.ceil(res);
+
+
 }
 
 function card1(scene) {
@@ -131,11 +159,13 @@ function card1(scene) {
     loaderGLTF.load('./model/card1.gltf', function (gltf) {
         console.log(gltf);
         gltf.scene.scale.set(10, 10, 10);
-        gltf.scene.position.set(-50,20,-400);
+        // gltf.scene.position.set(260,-50,0);
+        gltf.scene.position.set(all_cards_pos_init[0][0],all_cards_pos_init[0][1],all_cards_pos_init[0][2]);
         root5 = gltf.scene;
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
-        cards[0] = root5.getObjectByName('Mesh_0');
+        cards[0] = gltf.scene;
+        // cards[0] = root5.getObjectByName('Mesh_0');
         // card1.translateY(-5);
         // cards.push(card1);
         root5.traverse(function (object) {
@@ -159,14 +189,15 @@ function card2(scene) {
     // let mixer;
     const loaderGLTF = new GLTFLoader(loadingManager);
     loaderGLTF.load('./model/card2.gltf', function (gltf) {
-        console.log(gltf);
+        // console.log(gltf);
         gltf.scene.scale.set(10, 10, 10);
         // gltf.scene.position.set(-50,20,-400);
-        gltf.scene.position.set(100, 0, 0);
+        gltf.scene.position.set(all_cards_pos_init[1][0],all_cards_pos_init[1][1],all_cards_pos_init[1][2]);
         root5 = gltf.scene;
         scene.add(root5);
-        console.log(dumpObject(root5).join('\n'));
-        cards[1] = root5.getObjectByName('Mesh_0');
+        // console.log(dumpObject(root5).join('\n'));
+        // cards[1] = root5.getObjectByName('Mesh_0');
+        cards[1] = gltf.scene;
         // cards.push(card1);
         root5.traverse(function (object) {
         if (object.isMesh) {
@@ -188,15 +219,16 @@ function card3(scene) {
     // let mixer;
     const loaderGLTF = new GLTFLoader(loadingManager);
     loaderGLTF.load('./model/card3.gltf', function (gltf) {
-        console.log(gltf);
+        // console.log(gltf);
         gltf.scene.scale.set(10, 10, 10);
         // gltf.scene.position.set(-50,20,-400);
-        gltf.scene.position.set(200, 0, 0);
-        gltf.scene.rotation.set(0,1,0)
+        gltf.scene.position.set(all_cards_pos_init[2][0],all_cards_pos_init[2][1],all_cards_pos_init[2][2]);
+        // gltf.scene.rotation.set(0,1,0)
         root5 = gltf.scene;
         scene.add(root5);
-        console.log(dumpObject(root5).join('\n'));
-        cards[2] = root5.getObjectByName('Mesh_0');
+        // console.log(dumpObject(root5).join('\n'));
+        // cards[2] = root5.getObjectByName('Mesh_0');
+        cards[2] = gltf.scene;
         // cards.push(card1);
         root5.traverse(function (object) {
             if (object.isMesh) {
@@ -298,10 +330,11 @@ function SceneManager() {
     let mixer;
     const loaderGLTF = new GLTFLoader(loadingManager);
     loaderGLTF.load('./model/scene.gltf', function (gltf) {
-        console.log(gltf);
+        // console.log(gltf);
+        // gltf.scene.position.set(-200,0,0);
         root = gltf.scene;
         scene.add(root);
-        console.log(dumpObject(root).join('\n'));
+        // console.log(dumpObject(root).join('\n'));
         kapal = root.getObjectByName('Assembly_ASSV001');
         root.traverse(function (object) {
             if (object.isMesh) {
@@ -313,10 +346,10 @@ function SceneManager() {
         mixer = new THREE.AnimationMixer(root);
     },
         function (xhr) {
-            console.log((xhr.loaded / xhr.total * 100) + "% Loaded");
+            // console.log((xhr.loaded / xhr.total * 100) + "% Loaded");
         },
         function (error) {
-            console.log('An Error Occurred');
+            // console.log('An Error Occurred');
         }
     )
 
@@ -330,12 +363,13 @@ function SceneManager() {
     loaderGLTF.load('./model/rumahlaut1.gltf', function (gltf) {
         console.log(gltf);
         gltf.scene.scale.set(5, 5, 5);
-        gltf.scene.position.set(40, 0, -50);
+        // gltf.scene.position.set(240, 0, -50);
+        gltf.scene.position.set(all_rumah_pos_init[0][0],all_rumah_pos_init[0][1],all_rumah_pos_init[0][2]);
         root2 = gltf.scene;
         scene.add(root2);
         console.log(dumpObject(root2).join('\n'));
         rumah1 = root2.getObjectByName('Wood_support3');
-        box.setFromObject( rumah1 );
+        // box.setFromObject( rumah1 );
         root2.traverse(function (object) {
             if (object.isMesh) {
                 object.castShadow = true;
@@ -355,29 +389,29 @@ function SceneManager() {
 
     // console.log("BOX UKURAN",box);
     // console.log("RUMAH 1",rumah1.position);
-    for (let i = 0; i < 6; i+=2){
-        var geometry_rumah1 = new THREE.BoxGeometry(Math.abs(collision_bbox[i][0] -
-                                                                collision_bbox[i+1][0]), 13,
-                                                                Math.abs(collision_bbox[i][1] -
-                                                                    collision_bbox[i+1][1]),1,1,1);
-
-        var material_ = new THREE.MeshNormalMaterial( {color: 0xffff00} );
-        var boxx = new THREE.Mesh( geometry_rumah1, material_ );
-        boxx.position.set((collision_bbox[i][0] + collision_bbox[i+1][0])/2, 0, (collision_bbox[i][1] + collision_bbox[i+1][1])/2);
-        scene.add(boxx);
-    }
-
-    for (let i = 0; i < 6; i+=2){
-        var geometry_rumah1 = new THREE.BoxGeometry(Math.abs(card_zone[i][0] -
-            card_zone[i+1][0]), 5,
-            Math.abs(card_zone[i][1] -
-                card_zone[i+1][1]),1,1,1);
-
-        var material_ = new THREE.MeshNormalMaterial( {color: 0xffff00} );
-        var boxx = new THREE.Mesh( geometry_rumah1, material_ );
-        boxx.position.set((card_zone[i][0] + card_zone[i+1][0])/2, 0, (card_zone[i][1] + card_zone[i+1][1])/2);
-        scene.add(boxx);
-    }
+    // for (let i = 0; i < 6; i+=2){
+    //     var geometry_rumah1 = new THREE.BoxGeometry(Math.abs(collision_bbox[i][0] -
+    //                                                             collision_bbox[i+1][0]), 13,
+    //                                                             Math.abs(collision_bbox[i][1] -
+    //                                                                 collision_bbox[i+1][1]),1,1,1);
+    //
+    //     var material_ = new THREE.MeshNormalMaterial( {color: 0xffff00} );
+    //     var boxx = new THREE.Mesh( geometry_rumah1, material_ );
+    //     boxx.position.set((collision_bbox[i][0] + collision_bbox[i+1][0])/2, 0, (collision_bbox[i][1] + collision_bbox[i+1][1])/2);
+    //     scene.add(boxx);
+    // }
+    //
+    // for (let i = 0; i < 6; i+=2){
+    //     var geometry_rumah1 = new THREE.BoxGeometry(Math.abs(card_zone[i][0] -
+    //         card_zone[i+1][0]), 5,
+    //         Math.abs(card_zone[i][1] -
+    //             card_zone[i+1][1]),1,1,1);
+    //
+    //     var material_ = new THREE.MeshNormalMaterial( {color: 0xffff00} );
+    //     var boxx = new THREE.Mesh( geometry_rumah1, material_ );
+    //     boxx.position.set((card_zone[i][0] + card_zone[i+1][0])/2, 0, (card_zone[i][1] + card_zone[i+1][1])/2);
+    //     scene.add(boxx);
+    // }
 
     // console.log("BOX UKURAN RUMAH 1",boxx.parameters.width, boxx.parameters.depth);
     console.log("BBOX COLLISION",collision_bbox);
@@ -391,7 +425,10 @@ function SceneManager() {
     loaderGLTF.load('./model/rumah2.gltf', function (gltf) {
         console.log(gltf);
         gltf.scene.scale.set(5, 5, 5);
-        gltf.scene.position.set(-200, 20, -200);
+        // gltf.scene.position.set(-200, 20, -200);
+        // gltf.scene.position.set(-400, 20, 200);
+        gltf.scene.position.set(all_rumah_pos_init[1][0],all_rumah_pos_init[1][1],all_rumah_pos_init[1][2]);
+        gltf.scene.rotation.set(0, Math.PI/2, 0);
         root3 = gltf.scene;
         scene.add(root3);
         console.log(dumpObject(root3).join('\n'));
@@ -421,7 +458,9 @@ function SceneManager() {
     loaderGLTF.load('./model/rumah3.gltf', function (gltf) {
         console.log(gltf);
         gltf.scene.scale.set(5, 5, 5);
-        gltf.scene.position.set(-50, 20, -400);
+        // gltf.scene.position.set(-50, 20, -400);
+        // gltf.scene.position.set(-50, 20, -600);
+        gltf.scene.position.set(all_rumah_pos_init[2][0],all_rumah_pos_init[2][1],all_rumah_pos_init[2][2]);
         root4 = gltf.scene;
         scene.add(root4);
         console.log(dumpObject(root4).join('\n'));
@@ -497,22 +536,25 @@ function SceneManager() {
                 document.getElementById('blocker').style.display='none'
             }
         }else if (e.code === "KeyQ"){
-            cards[1].rotateY(Math.PI / 4);
+
+            // cards[0].rotation.set(0,-Math.PI/2,0);
+            cards[0].translateY(1);
             // var rotation_k = new THREE.Euler().setFromQuaternion(kapal.quaternion, "ZXY");
             // // let yaw_kapal = - (rotation_k.y);
             // cards[1].quaternion.set(rotation_k);
 
-        }else if (e.code === "KeyA"){
-            cards[1].rotateY(-Math.PI / 2);
-        }else if (e.code === "KeyE"){
-            cards[1].rotateZ(Math.PI / 2);
-        }else if (e.code === "KeyD"){
-            cards[1].rotateZ(-Math.PI / 2);
         }else if (e.code === "KeyW"){
-            cards[1].rotateX(Math.PI / 2);
-        }else if (e.code === "KeyS"){
-            cards[1].rotateX(-Math.PI / 2);
+            // cards[0].rotation.set(0,0,0);
+        }else if (e.code === "KeyE"){
+            cards[0].rotation.set(0,Math.PI/2,0);
+        }else if (e.code === "KeyR"){
+            cards[0].rotation.set(0,Math.PI,0);
         }
+        // else if (e.code === "KeyW"){
+        //     cards[0].rotateY(-Math.PI / 2);
+        // }else if (e.code === "KeyS"){
+        //     cards[0].rotateY(-Math.PI / 2);
+        // }
 
 
 
@@ -563,10 +605,103 @@ function SceneManager() {
      */
     let speed = 1;
     let rotation_speed = 0.02;
-
+    let card_raise_speed = 2;
+    let card_target_Y = 400;
+    let card_target_counter = 0;
+    let hiding_card = 0;
     this.update = function () {
         let clock = new THREE.Clock();
-        isInsideBoundingBox();
+        kapal_on_zone = isInsideBoundingBoxCard();
+        dist_camera = 70;
+        if(kapal_on_zone != 0){
+            if (kapal_on_zone != kapal_on_zone_before){
+                kapal_on_zone_before = kapal_on_zone;
+                card_target_counter = 0;
+                //rotate card
+                let yaw_to_island = ((Math.PI/2) * getAngleOfKapalToIsland(kapal_on_zone - 1));
+
+                cards[kapal_on_zone - 1].position.set(
+                    (Math.cos(-yaw_to_island) * (all_cards_pos_init[kapal_on_zone - 1][0] - all_rumah_pos_init[kapal_on_zone - 1][0]))
+                    - (Math.sin(-yaw_to_island) * (all_cards_pos_init[kapal_on_zone - 1][2] - all_rumah_pos_init[kapal_on_zone - 1][2]))
+                    + (all_rumah_pos_init[kapal_on_zone - 1][0]),
+                    -50,
+                    (Math.sin(-yaw_to_island) * (all_cards_pos_init[kapal_on_zone - 1][0] - all_rumah_pos_init[kapal_on_zone - 1][0]))
+                    + (Math.cos(-yaw_to_island) * (all_cards_pos_init[kapal_on_zone - 1][2] - all_rumah_pos_init[kapal_on_zone - 1][2]))
+                    + (all_rumah_pos_init[kapal_on_zone - 1][2])
+                    );
+                cards[kapal_on_zone - 1].rotation.set(0,yaw_to_island,0);
+
+                card_showed_at = kapal_on_zone;
+                //show card
+                console.log("SHOWING CARD", kapal_on_zone, ((Math.PI/2) *
+                    getAngleOfKapalToIsland(kapal_on_zone - 1)), getAngleOfKapalToIsland(kapal_on_zone - 1),
+                    (Math.cos(yaw_to_island) * (all_cards_pos_init[kapal_on_zone - 1][0] - all_rumah_pos_init[kapal_on_zone - 1][0]))
+                    - (Math.sin(yaw_to_island) * (all_cards_pos_init[kapal_on_zone - 1][2] - all_rumah_pos_init[kapal_on_zone - 1][2]))
+                    + (all_rumah_pos_init[kapal_on_zone - 1][0]),
+                    -50,
+                    (Math.sin(yaw_to_island) * (all_cards_pos_init[kapal_on_zone - 1][0] - all_rumah_pos_init[kapal_on_zone - 1][0]))
+                    + (Math.cos(yaw_to_island) * (all_cards_pos_init[kapal_on_zone - 1][2] - all_rumah_pos_init[kapal_on_zone - 1][2]))
+                    + (all_rumah_pos_init[kapal_on_zone - 1][2])
+
+                    );
+
+            }else{
+
+
+                if (card_target_counter < card_target_Y){
+                    // card_target_counter += card_raise_speed;
+                    const targetPosition = cards[kapal_on_zone - 1].position.clone();
+                    targetPosition.y += card_raise_speed;
+
+                    cards[kapal_on_zone - 1].position.lerp(targetPosition, 0.2);
+                    // // cards[kapal_on_zone - 1].translateY(card_raise_speed);
+                    // dist_camera = 200;
+                    // a.lerp(cards[kapal_on_zone - 1].position, 0.2);
+                    // camera.lookAt(new THREE.Vector3(cards[kapal_on_zone - 1].position.x, cards[kapal_on_zone - 1].position.y + 25, cards[kapal_on_zone - 1].position.z));
+                }
+
+                if (card_target_counter < card_target_Y * 2){
+                    card_target_counter += card_raise_speed;
+
+                    // cards[kapal_on_zone - 1].position.lerp(targetPosition, 0.2);
+                    // cards[kapal_on_zone - 1].translateY(card_raise_speed);
+                    dist_camera = 200;
+                    a.lerp(cards[kapal_on_zone - 1].position, 0.25);
+                    camera.lookAt(new THREE.Vector3(cards[kapal_on_zone - 1].position.x, cards[kapal_on_zone - 1].position.y + 25, cards[kapal_on_zone - 1].position.z));
+
+                    key_press.ArrowUp = false;
+                }
+
+
+                a.lerp(kapal.position, 0.4);
+                camera.lookAt(new THREE.Vector3(kapal.position.x, kapal.position.y + 35, kapal.position.z));
+            }
+        }else{
+            if (kapal_on_zone != kapal_on_zone_before) {
+                kapal_on_zone_before = kapal_on_zone;
+
+                //hide card
+                // card_zone[card_showed_at].translate
+                hiding_card = card_showed_at;
+                console.log("HIDING CARD", card_showed_at);
+            }else{
+                if (hiding_card != 0){
+                    card_target_counter -= card_raise_speed;
+                    const targetPosition = cards[hiding_card - 1].position.clone();
+                    targetPosition.y -= card_raise_speed;
+
+                    if (card_target_counter > 0){
+                        cards[hiding_card - 1].position.lerp(targetPosition, 0.2);
+                        // cards[kapal_on_zone - 1].translateY(card_raise_speed);
+
+                    }
+                }
+            }
+
+            a.lerp(kapal.position, 0.6);
+            camera.lookAt(new THREE.Vector3(kapal.position.x, kapal.position.y + 35, kapal.position.z));
+
+        }
         // Animates water
         water.material.uniforms['time'].value += 1.0 / 60.0;
 
@@ -626,37 +761,26 @@ function SceneManager() {
             kapal.rotateY(cur_speed);
         }
         // console.log(kapal.type)
-
-        a.lerp(kapal.position, 0.6);
+        // if(kapal_on_zone != 0){
+        //     dist_camera = 200;
+        //     a.lerp(cards[kapal_on_zone - 1].position, 0.2);
+        //     camera.lookAt(new THREE.Vector3(cards[kapal_on_zone - 1].position.x, cards[kapal_on_zone - 1].position.y + 25, cards[kapal_on_zone - 1].position.z));
+        // }else{
+        //     a.lerp(kapal.position, 0.2);
+        //     camera.lookAt(new THREE.Vector3(kapal.position.x, kapal.position.y + 25, kapal.position.z));
+        // }
         b.copy(goal.position);
 
         // dir.copy( a ).sub( b ).normalize();
         dir.copy(a).sub(b);
-        // const dis = (a.distanceTo( b ) - SafetyDistance);
-        // console.log("dir", dir);
-        // goal.position.add( dir);
+
         var rotation_k = new THREE.Euler().setFromQuaternion(kapal.quaternion, "ZXY");
         let yaw_kapal = - (rotation_k.y)
-        // console.log("dis", dis);
+
         goal.position.addScaledVector(new THREE.Vector3(
-            dir.x - (Math.cos(yaw_kapal) * 70), dir.y,
-            dir.z - (Math.sin(yaw_kapal) * 70)), 0.01);
-        // goal.position.set(kapal.position.x - (Math.cos(yaw_kapal) * 70), kapal.position.y,
-        //     kapal.position.z - (Math.sin(yaw_kapal) * 70))
-        console.log("kapalpos", kapal.position);
-        // console.log("goalpos", goal.position);
+            dir.x - (Math.cos(yaw_kapal) * dist_camera), dir.y,
+            dir.z - (Math.sin(yaw_kapal) * dist_camera)), 0.01);
 
-        // console.log("kapalYaw", yaw_kapal);
-        // console.log("kapalRot", (yaw_kapal / Math.PI) * 180);
-        // console.log("sinrot", Math.sin(-kapal.rotation.y));
-
-        // kapal.rotateY(+0.010)
-        // kapal.rotation.order = "XYZ"
-
-        // console.log("kapalpos", new THREE.Vector3( kapal.position.x, kapal.position.y + 10, kapal.position.z ));
-
-        // camera.lookAt( kapal.position );
-        camera.lookAt(new THREE.Vector3(kapal.position.x, kapal.position.y + 25, kapal.position.z));
 
         const time = performance.now() * 0.001;
         root.position.y = Math.sin(time) * 2;
