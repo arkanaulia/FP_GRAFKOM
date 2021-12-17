@@ -1,18 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <title>FP GRAFKOM</title>
 </head>
+
 <body>
+    <div id="blocker">
+        <div id="instructions">
+            <img src="./model/Group 86.png" alt="">
+            <p id="click" style="font-size:36px; color: #ffffff;">
+                Roboboat Champions Lineage
+            </p>
+            <p id="ins" style="color: #ffffff;">
+                Press Arrow Key to Move<br />
+                <br>
+                Get closer to landmark for getting know about our achievement!
+            </p>
+        </div>
+
+    </div>
     <canvas id="canvas"></canvas>
     <section id="loading-screen">
-        <div id=foto><img src="./model/Group 83.png" alt=""></div> 
+        <div id=foto><img src="./model/Group 83.png" alt=""></div>
         <div id="loader">
-           
+
         </div>
     </section>
     <script src="build/three.js"></script>
@@ -23,4 +42,5 @@
     <!--<script src="https://threejs.org/examples/jsm/objects/Sky.js"></script>-->
     <script type="module" src="ocean.js"></script>
 </body>
+
 </html>

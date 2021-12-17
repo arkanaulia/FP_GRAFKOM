@@ -436,15 +436,19 @@ function SceneManager() {
         if (e.code in key_press) {
             if (e.code === "ArrowLeft") {
                 key_press.ArrowLeft = true;
+                document.getElementById('blocker').style.display='none'
             }
             else if (e.code === "ArrowUp") {
                 key_press.ArrowUp = true;
+                document.getElementById('blocker').style.display='none'
             }
             else if (e.code === "ArrowRight") {
                 key_press.ArrowRight = true;
+                document.getElementById('blocker').style.display='none'
             }
             else if (e.code === "ArrowDown") {
                 key_press.ArrowDown = true;
+                document.getElementById('blocker').style.display='none'
             }
         }else if (e.code === "KeyQ"){
             // console.log(cards);
@@ -452,6 +456,8 @@ function SceneManager() {
             cards[0].translateY(-1);
             cards[0].translateZ(1);
         }
+
+
 
         // console.log("e code", e.code);
     }
