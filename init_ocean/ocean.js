@@ -9,6 +9,7 @@ import { Clock } from '../JS/three.module.js';
 import { ColladaLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/ColladaLoader.js';
 import { PID } from './PID.js';
 
+
 // main();
 
 const loadingManager = new THREE.LoadingManager(() => {
@@ -26,8 +27,8 @@ var kapal;
 
 var cards = [];
 var collision_bbox = [];
-collision_bbox.push([110,-115]);
-collision_bbox.push([15,-25]);
+collision_bbox.push([110, -115]);
+collision_bbox.push([15, -25]);
 /*
  * Key Press
  */
@@ -70,11 +71,11 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
     return lines;
 }
 
-function isInsideBoundingBox(){
+function isInsideBoundingBox() {
     let inside_bbox = false;
 
     if (kapal.position.x <= collision_bbox[0][0] && kapal.position.x >= collision_bbox[1][0]
-        && kapal.position.z >= collision_bbox[0][1] && kapal.position.z <= collision_bbox[1][1]){
+        && kapal.position.z >= collision_bbox[0][1] && kapal.position.z <= collision_bbox[1][1]) {
         inside_bbox = true;
         console.log("MASUK BBOX");
     }
@@ -82,14 +83,14 @@ function isInsideBoundingBox(){
     return inside_bbox;
 }
 
-function isInFrontBoundingBox(){
+function isInFrontBoundingBox() {
     let inside_bbox = false;
 
     var rotation_k = new THREE.Euler().setFromQuaternion(kapal.quaternion, "ZXY");
     let yaw_kapal = - (rotation_k.y)
     let distance = 4;
     if ((kapal.position.x + (Math.cos(yaw_kapal) * distance)) <= collision_bbox[0][0] && (kapal.position.x + (Math.cos(yaw_kapal) * distance)) >= collision_bbox[1][0]
-        && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) >= collision_bbox[0][1] && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) <= collision_bbox[1][1]){
+        && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) >= collision_bbox[0][1] && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) <= collision_bbox[1][1]) {
         inside_bbox = true;
         console.log("MASUK BBOX");
     }
@@ -143,10 +144,10 @@ function card2(scene) {
         card1 = root5.getObjectByName('Mesh_0');
         cards.push(card1);
         root5.traverse(function (object) {
-        if (object.isMesh) {
-            object.castShadow = true;
-            object.receiveShadow = true;
-        }
+            if (object.isMesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+            }
         });
 
         // mixer = new THREE.AnimationMixer( root );
@@ -166,7 +167,7 @@ function card3(scene) {
         gltf.scene.scale.set(10, 10, 10);
         // gltf.scene.position.set(-50,20,-400);
         gltf.scene.position.set(200, 0, 0);
-        gltf.scene.rotation.set(0,1,0)
+        gltf.scene.rotation.set(0, 1, 0)
         root5 = gltf.scene;
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
@@ -309,7 +310,7 @@ function SceneManager() {
         scene.add(root2);
         console.log(dumpObject(root2).join('\n'));
         rumah1 = root2.getObjectByName('Wood_support3');
-        box.setFromObject( rumah1 );
+        box.setFromObject(rumah1);
         root2.traverse(function (object) {
             if (object.isMesh) {
                 object.castShadow = true;
@@ -335,7 +336,7 @@ function SceneManager() {
     // boxx.position.set(42.5 + 15, 0, -45 - 25);
     // scene.add(boxx);
     // console.log("BOX UKURAN RUMAH 1",boxx.parameters.width, boxx.parameters.depth);
-    console.log("BBOX COLLISION",collision_bbox);
+    console.log("BBOX COLLISION", collision_bbox);
     // rumah1.position.x = 2;
 
     // rumah air
@@ -403,7 +404,7 @@ function SceneManager() {
     card2(scene);
     card3(scene);
 
-    console.log("CARDS ISINYA",cards, cards.length);
+    console.log("CARDS ISINYA", cards, cards.length);
 
 
 
@@ -419,6 +420,27 @@ function SceneManager() {
     scene.add(direcLight);
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
+    /*
+         * music
+         */
+
+    // create an AudioListener and add it to the camera
+    const listener = new THREE.AudioListener();
+    camera.add(listener);
+
+    // create a global audio source
+    const sound = new THREE.Audio(listener);
+    const sound2 = new THREE.Audio(listener);
+
+    // load a sound and set it as the Audio object's buffer
+    const audioLoader = new THREE.AudioLoader();
+    const audioLoader2 = new THREE.AudioLoader();
+    audioLoader.load('./model/ocean.wav', function (buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(true);
+        sound.setVolume(0.5);
+        sound.play();
+    });
 
     /*
      * Control
@@ -437,21 +459,32 @@ function SceneManager() {
         if (e.code in key_press) {
             if (e.code === "ArrowLeft") {
                 key_press.ArrowLeft = true;
-                document.getElementById('blocker').style.display='none'
             }
             else if (e.code === "ArrowUp") {
                 key_press.ArrowUp = true;
-                document.getElementById('blocker').style.display='none'
+                document.getElementById('blocker').style.display = 'none'
+                audioLoader2.load('./model/engine.ogg', function (buffer) {
+                    sound2.setBuffer(buffer);
+                    sound2.setLoop(true);
+                    sound2.setVolume(0.5);
+                    sound2.play();
+                });
             }
             else if (e.code === "ArrowRight") {
                 key_press.ArrowRight = true;
-                document.getElementById('blocker').style.display='none'
+                document.getElementById('blocker').style.display = 'none'
             }
             else if (e.code === "ArrowDown") {
                 key_press.ArrowDown = true;
-                document.getElementById('blocker').style.display='none'
+                document.getElementById('blocker').style.display = 'none'
+                audioLoader2.load('./model/engine.ogg', function (buffer) {
+                    sound2.setBuffer(buffer);
+                    sound2.setLoop(true);
+                    sound2.setVolume(0.5);
+                    sound2.play();
+                });
             }
-        }else if (e.code === "KeyQ"){
+        } else if (e.code === "KeyQ") {
             // console.log(cards);
             // boxx.translateX(2);
             cards[0].translateY(-1);
@@ -470,35 +503,29 @@ function SceneManager() {
             }
             if (e.code === "ArrowUp") {
                 key_press.ArrowUp = false;
+                audioLoader2.load('./model/engine.ogg', function (buffer) {
+                    sound2.setBuffer(buffer);
+                    sound2.setLoop(true);
+                    sound2.setVolume(0.5);
+                    sound2.stop();
+                });
             }
             if (e.code === "ArrowRight") {
                 key_press.ArrowRight = false;
             }
             if (e.code === "ArrowDown") {
                 key_press.ArrowDown = false;
+                audioLoader2.load('./model/engine.ogg', function (buffer) {
+                    sound2.setBuffer(buffer);
+                    sound2.setLoop(true);
+                    sound2.setVolume(0.5);
+                    sound2.stop();
+                });
             }
         }
     }
 
-    /*
-     * music
-     */
 
-    // create an AudioListener and add it to the camera
-    const listener = new THREE.AudioListener();
-    camera.add(listener);
-
-    // create a global audio source
-    const sound = new THREE.Audio(listener);
-
-    // load a sound and set it as the Audio object's buffer
-    const audioLoader = new THREE.AudioLoader();
-    audioLoader.load('./model/ocean.wav', function (buffer) {
-        sound.setBuffer(buffer);
-        sound.setLoop(true);
-        sound.setVolume(0.5);
-        sound.play();
-    });
 
     //Hide all cards
     // for (let i = 0; i < 3; i++){
@@ -526,7 +553,7 @@ function SceneManager() {
         } else if (key_press.ArrowDown) {
             let cur_speed = pid_control_kapal_throtle.setTarget(-speed)
             kapal.translateX(cur_speed);
-        } else if(isInFrontBoundingBox()){
+        } else if (isInFrontBoundingBox()) {
             pid_control_kapal_throtle.setTarget(0);
             kapal.translateX(0);
         } else {
