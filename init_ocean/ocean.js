@@ -27,7 +27,17 @@ var kapal;
 var cards = [];
 var collision_bbox = [];
 collision_bbox.push([110,-115]);
-collision_bbox.push([15,-25]);
+collision_bbox.push([27,-25]);
+collision_bbox.push([43,-480]);
+collision_bbox.push([-125,-310]);
+collision_bbox.push([-136,-251]);
+collision_bbox.push([-270,-138]);
+
+let card_zone = [];
+let bigger_than_coll = 1.5;
+for (let i =0; i < 6;i++){
+    card_zone.push([collision_bbox[i][0]*bigger_than_coll,collision_bbox[i][1]*bigger_than_coll]);
+}
 /*
  * Key Press
  */
@@ -73,11 +83,11 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
 function isInsideBoundingBox(){
     let inside_bbox = false;
 
-    if (kapal.position.x <= collision_bbox[0][0] && kapal.position.x >= collision_bbox[1][0]
-        && kapal.position.z >= collision_bbox[0][1] && kapal.position.z <= collision_bbox[1][1]){
-        inside_bbox = true;
-        console.log("MASUK BBOX");
-    }
+    // if (kapal.position.x <= collision_bbox[0][0] && kapal.position.x >= collision_bbox[1][0]
+    //     && kapal.position.z >= collision_bbox[0][1] && kapal.position.z <= collision_bbox[1][1]){
+    //     inside_bbox = true;
+    //     console.log("MASUK BBOX");
+    // }
 
     return inside_bbox;
 }
@@ -86,15 +96,31 @@ function isInFrontBoundingBox(){
     let inside_bbox = false;
 
     var rotation_k = new THREE.Euler().setFromQuaternion(kapal.quaternion, "ZXY");
-    let yaw_kapal = - (rotation_k.y)
-    let distance = 4;
-    if ((kapal.position.x + (Math.cos(yaw_kapal) * distance)) <= collision_bbox[0][0] && (kapal.position.x + (Math.cos(yaw_kapal) * distance)) >= collision_bbox[1][0]
-        && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) >= collision_bbox[0][1] && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) <= collision_bbox[1][1]){
-        inside_bbox = true;
-        console.log("MASUK BBOX");
+    let yaw_kapal = - (rotation_k.y);
+    let distance = 1;
+
+    // for
+    for (let i = 0; i < 6; i+=2){
+        if ((kapal.position.x + (Math.cos(yaw_kapal) * distance)) <= collision_bbox[i][0] && (kapal.position.x + (Math.cos(yaw_kapal) * distance)) >= collision_bbox[i+1][0]
+            && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) >= collision_bbox[i][1] && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) <= collision_bbox[i+1][1]){
+            inside_bbox = true;
+            // console.log("MASUK BBOX");
+        }
     }
 
     return inside_bbox;
+}
+
+function getAngleOfCard(){
+    for (let i = 0; i < 6; i+=2){
+        if ((kapal.position.x + (Math.cos(yaw_kapal) * distance)) <= collision_bbox[i][0] && (kapal.position.x + (Math.cos(yaw_kapal) * distance)) >= collision_bbox[i+1][0]
+            && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) >= collision_bbox[i][1] && (kapal.position.z + (Math.sin(yaw_kapal) * distance)) <= collision_bbox[i+1][1]){
+            inside_bbox = true;
+            // console.log("MASUK BBOX");
+        }
+    }
+
+    return
 }
 
 function card1(scene) {
@@ -105,13 +131,13 @@ function card1(scene) {
     loaderGLTF.load('./model/card1.gltf', function (gltf) {
         console.log(gltf);
         gltf.scene.scale.set(10, 10, 10);
-        // gltf.scene.position.set(-50,20,-400);
+        gltf.scene.position.set(-50,20,-400);
         root5 = gltf.scene;
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
-        card1 = root5.getObjectByName('Mesh_0');
+        cards[0] = root5.getObjectByName('Mesh_0');
         // card1.translateY(-5);
-        cards.push(card1);
+        // cards.push(card1);
         root5.traverse(function (object) {
             if (object.isMesh) {
                 object.castShadow = true;
@@ -140,8 +166,8 @@ function card2(scene) {
         root5 = gltf.scene;
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
-        card1 = root5.getObjectByName('Mesh_0');
-        cards.push(card1);
+        cards[1] = root5.getObjectByName('Mesh_0');
+        // cards.push(card1);
         root5.traverse(function (object) {
         if (object.isMesh) {
             object.castShadow = true;
@@ -169,8 +195,8 @@ function card3(scene) {
         root5 = gltf.scene;
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
-        card1 = root5.getObjectByName('Mesh_0');
-        cards.push(card1);
+        cards[2] = root5.getObjectByName('Mesh_0');
+        // cards.push(card1);
         root5.traverse(function (object) {
             if (object.isMesh) {
                 object.castShadow = true;
@@ -328,11 +354,30 @@ function SceneManager() {
 
     // console.log("BOX UKURAN",box);
     // console.log("RUMAH 1",rumah1.position);
-    // var geometry_rumah1 = new THREE.BoxGeometry(95,60,90,1,1,1);
-    // var material_ = new THREE.MeshNormalMaterial( {color: 0xffff00} );
-    // var boxx = new THREE.Mesh( geometry_rumah1, material_ );
-    // boxx.position.set(42.5 + 15, 0, -45 - 25);
-    // scene.add(boxx);
+    for (let i = 0; i < 6; i+=2){
+        var geometry_rumah1 = new THREE.BoxGeometry(Math.abs(collision_bbox[i][0] -
+                                                                collision_bbox[i+1][0]), 13,
+                                                                Math.abs(collision_bbox[i][1] -
+                                                                    collision_bbox[i+1][1]),1,1,1);
+
+        var material_ = new THREE.MeshNormalMaterial( {color: 0xffff00} );
+        var boxx = new THREE.Mesh( geometry_rumah1, material_ );
+        boxx.position.set((collision_bbox[i][0] + collision_bbox[i+1][0])/2, 0, (collision_bbox[i][1] + collision_bbox[i+1][1])/2);
+        scene.add(boxx);
+    }
+
+    for (let i = 0; i < 6; i+=2){
+        var geometry_rumah1 = new THREE.BoxGeometry(Math.abs(card_zone[i][0] -
+            card_zone[i+1][0]), 5,
+            Math.abs(card_zone[i][1] -
+                card_zone[i+1][1]),1,1,1);
+
+        var material_ = new THREE.MeshNormalMaterial( {color: 0xffff00} );
+        var boxx = new THREE.Mesh( geometry_rumah1, material_ );
+        boxx.position.set((card_zone[i][0] + card_zone[i+1][0])/2, 0, (card_zone[i][1] + card_zone[i+1][1])/2);
+        scene.add(boxx);
+    }
+
     // console.log("BOX UKURAN RUMAH 1",boxx.parameters.width, boxx.parameters.depth);
     console.log("BBOX COLLISION",collision_bbox);
     // rumah1.position.x = 2;
@@ -447,10 +492,21 @@ function SceneManager() {
                 key_press.ArrowDown = true;
             }
         }else if (e.code === "KeyQ"){
-            // console.log(cards);
-            // boxx.translateX(2);
-            cards[0].translateY(-1);
-            cards[0].translateZ(1);
+            cards[1].rotateY(Math.PI / 4);
+            // var rotation_k = new THREE.Euler().setFromQuaternion(kapal.quaternion, "ZXY");
+            // // let yaw_kapal = - (rotation_k.y);
+            // cards[1].quaternion.set(rotation_k);
+
+        }else if (e.code === "KeyA"){
+            cards[1].rotateY(-Math.PI / 2);
+        }else if (e.code === "KeyE"){
+            cards[1].rotateZ(Math.PI / 2);
+        }else if (e.code === "KeyD"){
+            cards[1].rotateZ(-Math.PI / 2);
+        }else if (e.code === "KeyW"){
+            cards[1].rotateX(Math.PI / 2);
+        }else if (e.code === "KeyS"){
+            cards[1].rotateX(-Math.PI / 2);
         }
 
         // console.log("e code", e.code);
@@ -493,11 +549,7 @@ function SceneManager() {
         sound.play();
     });
 
-    //Hide all cards
-    // for (let i = 0; i < 3; i++){
-    //     cards[i].position.y = -5;
-    //     console.log("BAWAH card",i);
-    // }
+
 
     /*
      * Animasi
@@ -584,7 +636,7 @@ function SceneManager() {
             dir.z - (Math.sin(yaw_kapal) * 70)), 0.01);
         // goal.position.set(kapal.position.x - (Math.cos(yaw_kapal) * 70), kapal.position.y,
         //     kapal.position.z - (Math.sin(yaw_kapal) * 70))
-        // console.log("kapalpos", kapal.position);
+        console.log("kapalpos", kapal.position);
         // console.log("goalpos", goal.position);
 
         // console.log("kapalYaw", yaw_kapal);
@@ -628,4 +680,11 @@ function animate() {
     requestAnimationFrame(animate);
     sceneManager.update();
 }
+
+//Hide all cards
+for (let i = 0; i < 3; i++){
+    // cards[i].translateX(-2);
+    console.log("BAWAH card",i);
+}
+
 animate();
