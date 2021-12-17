@@ -192,6 +192,7 @@ function card3(scene) {
         gltf.scene.scale.set(10, 10, 10);
         // gltf.scene.position.set(-50,20,-400);
         gltf.scene.position.set(200, 0, 0);
+        gltf.scene.rotation.set(0,1,0)
         root5 = gltf.scene;
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
@@ -481,15 +482,19 @@ function SceneManager() {
         if (e.code in key_press) {
             if (e.code === "ArrowLeft") {
                 key_press.ArrowLeft = true;
+                document.getElementById('blocker').style.display='none'
             }
             else if (e.code === "ArrowUp") {
                 key_press.ArrowUp = true;
+                document.getElementById('blocker').style.display='none'
             }
             else if (e.code === "ArrowRight") {
                 key_press.ArrowRight = true;
+                document.getElementById('blocker').style.display='none'
             }
             else if (e.code === "ArrowDown") {
                 key_press.ArrowDown = true;
+                document.getElementById('blocker').style.display='none'
             }
         }else if (e.code === "KeyQ"){
             cards[1].rotateY(Math.PI / 4);
@@ -508,6 +513,8 @@ function SceneManager() {
         }else if (e.code === "KeyS"){
             cards[1].rotateX(-Math.PI / 2);
         }
+
+
 
         // console.log("e code", e.code);
     }
