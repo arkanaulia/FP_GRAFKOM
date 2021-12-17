@@ -859,11 +859,11 @@ function SceneManager() {
                 if (i != sound_pitch){
                     sounds_pitch_engine[i].setVolume(0.2);
                     sound_pitch = i;
-                    console.log("GANTI PITCH");
+                    // console.log("GANTI PITCH");
                 }
                 // break;
             }else if(i == 0 && speed_kapal <= 0.04){
-                sounds_pitch_engine[i].setVolume(0.2);
+                sounds_pitch_engine[i].setVolume(0.15);
             }else{
                 sounds_pitch_engine[i].setVolume(0);
             }
