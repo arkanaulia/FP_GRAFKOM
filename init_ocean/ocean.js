@@ -59,6 +59,17 @@ all_cards_pos_init.push([-50, -50, -500]);
 
 console.log("CARD ZONE", card_zone)
 
+const listener = new THREE.AudioListener();
+var sound2 = new THREE.Audio(listener);
+
+var sounds_pitch_engine = [];
+
+for (let i = 0; i <25; i++){
+    sounds_pitch_engine.push(new THREE.Audio(listener))
+}
+
+let sound_pitch = 0;
+
 /*
  * Key Press
  */
@@ -88,6 +99,7 @@ let dist_camera = 70;
 
 let pid_control_kapal_throtle = new PID(0.2, 0.01, 0.03);
 let pid_control_kapal_turn = new PID(0.2, 0.03, 0.04);
+let pid_volume_mesin = new PID(0.05, 0.01, 0.02);
 
 /*
  * SceneGraph
@@ -509,12 +521,12 @@ function SceneManager() {
          */
 
     // create an AudioListener and add it to the camera
-    const listener = new THREE.AudioListener();
+
     camera.add(listener);
 
     // create a global audio source
-    const sound = new THREE.Audio(listener);
-    const sound2 = new THREE.Audio(listener);
+    var sound = new THREE.Audio(listener);
+
 
     // load a sound and set it as the Audio object's buffer
     const audioLoader = new THREE.AudioLoader();
@@ -525,6 +537,27 @@ function SceneManager() {
         sound.setVolume(0.5);
         sound.play();
     });
+
+    audioLoader2.load('./model/mesin_up.ogg', function (buffer) {
+        sound2.setBuffer(buffer);
+        sound2.setLoop(true);
+        sound2.setVolume(0.1);
+        sound2.play();
+    });
+
+    for (let i =0; i <25; i++){
+        audioLoader2.load('./model/mesin_up.ogg', function (buffer) {
+            sounds_pitch_engine[i].setBuffer(buffer);
+            sounds_pitch_engine[i].setLoop(true);
+            sounds_pitch_engine[i].setVolume(0);
+            sounds_pitch_engine[i].detune = i * 40;
+            sounds_pitch_engine[i].play();
+        });
+    }
+
+
+
+    // sound2.detune = 1000;
 
     /*
      * Control
@@ -547,12 +580,13 @@ function SceneManager() {
             else if (e.code === "ArrowUp") {
                 key_press.ArrowUp = true;
                 document.getElementById('blocker').style.display = 'none'
-                audioLoader2.load('./model/engine.ogg', function (buffer) {
-                    sound2.setBuffer(buffer);
-                    sound2.setLoop(true);
-                    sound2.setVolume(0.5);
-                    sound2.play();
-                });
+                // audioLoader2.load('./model/engine.ogg', function (buffer) {
+                //     sound2.setBuffer(buffer);
+                //     sound2.setLoop(true);
+                //     let vol = pid_volume_mesin.setTarget(0.2);
+                //     sound2.setVolume(vol);
+                //     sound2.play();
+                // });
             }
             else if (e.code === "ArrowRight") {
                 key_press.ArrowRight = true;
@@ -561,12 +595,13 @@ function SceneManager() {
             else if (e.code === "ArrowDown") {
                 key_press.ArrowDown = true;
                 document.getElementById('blocker').style.display = 'none'
-                audioLoader2.load('./model/engine.ogg', function (buffer) {
-                    sound2.setBuffer(buffer);
-                    sound2.setLoop(true);
-                    sound2.setVolume(0.5);
-                    sound2.play();
-                });
+                // audioLoader2.load('./model/engine.ogg', function (buffer) {
+                //     sound2.setBuffer(buffer);
+                //     sound2.setLoop(true);
+                //     let vol = pid_volume_mesin.setTarget(0.2);
+                //     sound2.setVolume(vol);
+                //     sound2.play();
+                // });
             }
         }else if (e.code === "KeyQ"){
 
@@ -601,24 +636,26 @@ function SceneManager() {
             }
             if (e.code === "ArrowUp") {
                 key_press.ArrowUp = false;
-                audioLoader2.load('./model/engine.ogg', function (buffer) {
-                    sound2.setBuffer(buffer);
-                    sound2.setLoop(true);
-                    sound2.setVolume(0.5);
-                    sound2.stop();
-                });
+                // audioLoader2.load('./model/engine.ogg', function (buffer) {
+                //     sound2.setBuffer(buffer);
+                //     sound2.setLoop(true);
+                //     let vol = pid_volume_mesin.setTarget(0);
+                //     sound2.setVolume(vol);
+                //     // sound2.setVolume(0.5);
+                //     sound2.stop();
+                // });
             }
             if (e.code === "ArrowRight") {
                 key_press.ArrowRight = false;
             }
             if (e.code === "ArrowDown") {
                 key_press.ArrowDown = false;
-                audioLoader2.load('./model/engine.ogg', function (buffer) {
-                    sound2.setBuffer(buffer);
-                    sound2.setLoop(true);
-                    sound2.setVolume(0.5);
-                    sound2.stop();
-                });
+                // audioLoader2.load('./model/engine.ogg', function (buffer) {
+                //     sound2.setBuffer(buffer);
+                //     sound2.setLoop(true);
+                //     sound2.setVolume(0.5);
+                //     sound2.stop();
+                // });
             }
         }
     }
@@ -636,6 +673,8 @@ function SceneManager() {
     let card_target_Y = 400;
     let card_target_counter = 0;
     let hiding_card = 0;
+
+    let counter_sound = 0;
     this.update = function () {
         let clock = new THREE.Clock();
         kapal_on_zone = isInsideBoundingBoxCard();
@@ -813,6 +852,57 @@ function SceneManager() {
         root.position.y = Math.sin(time) * 2;
         // root.rotation.x = time * 0.3;
         // root.rotation.z = time * 0.3;
+
+        let speed_kapal = pid_control_kapal_throtle.getCurrentCond();
+        for(let i = 0; i < 25; i++){
+            if(speed_kapal > (i * 0.04)){
+                if (i != sound_pitch){
+                    sounds_pitch_engine[i].setVolume(0.06);
+                    sound_pitch = i;
+                    console.log("GANTI PITCH");
+                }
+                // break;
+            }else{
+                sounds_pitch_engine[i].setVolume(0);
+            }
+            //     sounds_pitch_engine[i].setVolume(0);
+            // }
+        }
+
+        // if (speed_kapal>0.5){
+        //     // sound3.setVolume(0.1);
+        //     sound2.setVolume(0);
+        // }else{
+        //     sound2.setVolume(0.1);
+        //     // sound3.setVolume(0);
+        // }
+
+
+        // if (speed_kapal >= 0.5){
+        //     // ////sound engine pitch by speed
+        //
+        //     sound2.pause();
+        //     sound2.detune = 100;
+        //     sound2.play();
+        //     counter_sound = 0;
+        //     console.log("SPEED KAPAL",speed_kapal);
+        //
+        //
+        // }else{
+        //     counter_sound++;
+        // }
+        // let speed_kapal = pid_control_kapal_throtle.getCurrentCond();
+        //     // sound2.detune = speed_kapal * 1000;
+        // console.log("SPEED KAPAL",speed_kapal);
+        // sound2.setVolume(0.1 + speed_kapal*0.3);
+        // const audioContext = sound2.context;
+        // const biquadFilter = audioContext.createBiquadFilter();
+        // biquadFilter.type = "highpass"; // Low pass filter
+        // // biquadFilter.frequency.setValueAtTime(200, audioContext.currentTime);
+        // biquadFilter.detune.value = 1000;
+        //
+        // sound2.setFilter(biquadFilter);
+
         renderer.render(scene, camera);
     }
 
@@ -836,6 +926,12 @@ const sceneManager = new SceneManager();
 
 function animate() {
     requestAnimationFrame(animate);
+    //sound engine pitch by speed
+    // let speed_kapal = pid_control_kapal_throtle.getCurrentCond();
+    // sound2.detune = parseInt(1 * 1000);
+    // sound2.setVolume(0.1 + speed_kapal*0.3);
+    // console.log("SPEED KAPAL",speed_kapal);
+
     sceneManager.update();
 }
 
