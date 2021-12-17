@@ -330,13 +330,13 @@ function SceneManager() {
 
     let mixer;
     const loaderGLTF = new GLTFLoader(loadingManager);
-    loaderGLTF.load('./model/scene.gltf', function (gltf) {
+    loaderGLTF.load('./model/scene2.gltf', function (gltf) {
         // console.log(gltf);
         // gltf.scene.position.set(-200,0,0);
         root = gltf.scene;
         scene.add(root);
         // console.log(dumpObject(root).join('\n'));
-        kapal = root.getObjectByName('Assembly_ASSV001');
+        kapal = root.getObjectByName('Object_1');
         root.traverse(function (object) {
             if (object.isMesh) {
                 object.castShadow = true;
