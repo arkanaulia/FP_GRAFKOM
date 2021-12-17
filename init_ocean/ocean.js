@@ -166,6 +166,7 @@ function card3(scene) {
         gltf.scene.scale.set(10, 10, 10);
         // gltf.scene.position.set(-50,20,-400);
         gltf.scene.position.set(200, 0, 0);
+        gltf.scene.rotation.set(0,1,0)
         root5 = gltf.scene;
         scene.add(root5);
         console.log(dumpObject(root5).join('\n'));
